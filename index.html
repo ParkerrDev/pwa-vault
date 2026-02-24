@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>SiteVault</title>
+
+  <!-- PWA / Safari home screen -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="SiteVault" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="theme-color" content="#0a0a0f" />
+
+  <link rel="manifest" href="/manifest.json" />
+  <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+  <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-180.png" />
+  <link rel="apple-touch-icon" sizes="167x167" href="/icons/icon-167.png" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --bg: #0a0a0f;
+      --surface: #111118;
+      --border: #1e1e2e;
+      --border-bright: #2e2e4e;
+      --accent: #7c6af7;
+      --accent-glow: rgba(124, 106, 247, 0.18);
+      --accent-dim: #4a3fa3;
+      --text: #e8e8f0;
+      --text-muted: #6b6b80;
+      --text-dim: #3a3a50;
+      --danger: #f76a6a;
+      --success: #6af7a8;
+      --mono: 'DM Mono', monospace;
+      --display: 'Syne', sans-serif;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--mono);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── UPLOAD SCREEN ─────────────────────────────────── */
+    #upload-screen {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: calc(var(--safe-top) + 24px) 24px calc(var(--safe-bottom) + 24px);
+      background: var(--bg);
+      z-index: 100;
+      transition: opacity 0.4s ease, transform 0.4s ease;
+    }
+
+    #upload-screen.hidden {
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(0.96);
+    }
+
+    .logo-mark {
+      width: 72px;
+      height: 72px;
+      border-radius: 18px;
+      background: var(--surface);
+      border: 1px solid var(--border-bright);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 28px;
+      position: relative;
+      box-shadow: 0 0 40px var(--accent-glow);
+    }
+
+    .logo-mark svg {
+      width: 36px;
+      height: 36px;
+    }
+
+    .logo-mark::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: 19px;
+      background: linear-gradient(135deg, var(--accent-dim), transparent 60%);
+      opacity: 0.5;
+      z-index: -1;
+    }
+
+    .wordmark {
+      font-family: var(--display);
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+
+    .tagline {
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-bottom: 52px;
+    }
+
+    /* Drop zone */
+    .drop-zone {
+      width: 100%;
+      max-width: 380px;
+      border: 1.5px dashed var(--border-bright);
+      border-radius: 16px;
+      padding: 40px 32px;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+      position: relative;
+      background: var(--surface);
+    }
+
+    .drop-zone:hover,
+    .drop-zone.dragover {
+      border-color: var(--accent);
+      background: var(--accent-glow);
+      box-shadow: 0 0 32px var(--accent-glow);
+    }
+
+    .drop-zone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .drop-icon {
+      width: 48px;
+      height: 48px;
+      margin: 0 auto 16px;
+      opacity: 0.5;
+    }
+
+    .drop-title {
+      font-family: var(--display);
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+    }
+
+    .drop-sub {
+      font-size: 11px;
+      color: var(--text-muted);
+      letter-spacing: 0.06em;
+    }
+
+    .drop-sub span {
+      color: var(--accent);
+      font-weight: 500;
+    }
+
+    .hint {
+      margin-top: 24px;
+      font-size: 10px;
+      color: var(--text-dim);
+      letter-spacing: 0.08em;
+      text-align: center;
+      line-height: 1.7;
+    }
+
+    .hint strong {
+      color: var(--text-muted);
+    }
+
+    /* ─── VIEWER SCREEN ─────────────────────────────────── */
+    #viewer-screen {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.35s ease;
+    }
+
+    #viewer-screen.visible {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    #site-frame {
+      width: 100%;
+      flex: 1;
+      border: none;
+      display: block;
+      background: #fff;
+    }
+
+    /* ─── CLEAR BUTTON ──────────────────────────────────── */
+    #clear-btn {
+      position: fixed;
+      bottom: calc(var(--safe-bottom) + 16px);
+      right: 16px;
+      z-index: 200;
+      background: rgba(10, 10, 15, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--border-bright);
+      border-radius: 50px;
+      padding: 8px 14px;
+      font-family: var(--mono);
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      gap: 6px;
+      transition: color 0.2s, border-color 0.2s, opacity 0.2s;
+      opacity: 0;
+      animation: fadeInBtn 0.6s 0.8s ease forwards;
+    }
+
+    #clear-btn.show { display: flex; }
+
+    @keyframes fadeInBtn {
+      to { opacity: 1; }
+    }
+
+    #clear-btn:hover {
+      color: var(--danger);
+      border-color: var(--danger);
+    }
+
+    #clear-btn svg { width: 12px; height: 12px; }
+
+    /* ─── LOADING BAR ───────────────────────────────────── */
+    #progress {
+      position: fixed;
+      top: var(--safe-top);
+      left: 0;
+      width: 0%;
+      height: 2px;
+      background: var(--accent);
+      z-index: 300;
+      transition: width 0.3s ease;
+      box-shadow: 0 0 8px var(--accent);
+    }
+
+    /* ─── NOISE OVERLAY ─────────────────────────────────── */
+    #upload-screen::after {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+      opacity: 0.025;
+      pointer-events: none;
+      z-index: -1;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Progress bar -->
+  <div id="progress"></div>
+
+  <!-- Upload screen -->
+  <div id="upload-screen">
+    <div class="logo-mark">
+      <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect x="4" y="4" width="12" height="12" rx="2" fill="#7c6af7" opacity="0.9"/>
+        <rect x="20" y="4" width="12" height="12" rx="2" fill="#7c6af7" opacity="0.4"/>
+        <rect x="4" y="20" width="12" height="12" rx="2" fill="#7c6af7" opacity="0.4"/>
+        <rect x="20" y="20" width="12" height="12" rx="2" fill="#7c6af7" opacity="0.7"/>
+      </svg>
+    </div>
+
+    <div class="wordmark">SiteVault</div>
+    <div class="tagline">cache & launch any html site</div>
+
+    <div class="drop-zone" id="drop-zone">
+      <input type="file" id="file-input" accept=".html,.htm" />
+
+      <svg class="drop-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M24 32V16M24 16L18 22M24 16L30 22" stroke="#7c6af7" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M8 34C8 37.3137 10.6863 40 14 40H34C37.3137 40 40 37.3137 40 34" stroke="#6b6b80" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+
+      <div class="drop-title">Drop your HTML file here</div>
+      <div class="drop-sub">or tap to browse &mdash; <span>.html / .htm</span></div>
+    </div>
+
+    <p class="hint">
+      <strong>Self-contained files work best.</strong><br/>
+      Inline CSS &amp; JS will run. Externally<br/>linked files may not load offline.
+    </p>
+  </div>
+
+  <!-- Viewer screen -->
+  <div id="viewer-screen">
+    <iframe
+      id="site-frame"
+      sandbox="allow-scripts allow-same-origin allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox"
+      title="Loaded site"
+    ></iframe>
+  </div>
+
+  <!-- Clear / replace button -->
+  <button id="clear-btn" aria-label="Remove cached site">
+    <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2 2L10 10M10 2L2 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+    </svg>
+    clear
+  </button>
+
+  <script>
+    const CACHE_KEY = 'sitevault_html_v1';
+
+    const uploadScreen = document.getElementById('upload-screen');
+    const viewerScreen = document.getElementById('viewer-screen');
+    const siteFrame   = document.getElementById('site-frame');
+    const fileInput   = document.getElementById('file-input');
+    const dropZone    = document.getElementById('drop-zone');
+    const clearBtn    = document.getElementById('clear-btn');
+    const progress    = document.getElementById('progress');
+
+    /* ── Helpers ── */
+    function setProgress(pct) {
+      progress.style.width = pct + '%';
+    }
+
+    function showViewer(html) {
+      setProgress(60);
+
+      // Build blob URL so scripts execute properly
+      const blob = new Blob([html], { type: 'text/html' });
+      const url  = URL.createObjectURL(blob);
+
+      siteFrame.onload = () => {
+        setProgress(100);
+        setTimeout(() => { progress.style.width = '0%'; progress.style.transition = 'none'; setTimeout(() => progress.style.transition = '', 50); }, 400);
+      };
+
+      siteFrame.src = url;
+
+      // Transition
+      uploadScreen.classList.add('hidden');
+      viewerScreen.classList.add('visible');
+      clearBtn.classList.add('show');
+    }
+
+    function loadCached() {
+      const stored = localStorage.getItem(CACHE_KEY);
+      if (stored) {
+        showViewer(stored);
+        return true;
+      }
+      return false;
+    }
+
+    function cacheAndShow(html) {
+      setProgress(30);
+      try {
+        localStorage.setItem(CACHE_KEY, html);
+      } catch (e) {
+        // Storage full — show without caching
+        console.warn('localStorage full, showing without caching.', e);
+      }
+      showViewer(html);
+    }
+
+    function handleFile(file) {
+      if (!file || !file.name.match(/\.html?$/i)) return;
+      const reader = new FileReader();
+      setProgress(10);
+      reader.onload = (e) => cacheAndShow(e.target.result);
+      reader.readAsText(file);
+    }
+
+    /* ── Clear ── */
+    clearBtn.addEventListener('click', () => {
+      if (!confirm('Remove the cached site and return to the upload screen?')) return;
+      localStorage.removeItem(CACHE_KEY);
+
+      // Revoke old blob url to free memory
+      if (siteFrame.src.startsWith('blob:')) URL.revokeObjectURL(siteFrame.src);
+      siteFrame.src = 'about:blank';
+
+      viewerScreen.classList.remove('visible');
+      clearBtn.classList.remove('show');
+      uploadScreen.classList.remove('hidden');
+    });
+
+    /* ── File input ── */
+    fileInput.addEventListener('change', (e) => {
+      handleFile(e.target.files[0]);
+    });
+
+    /* ── Drag & drop ── */
+    dropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('dragover');
+    });
+
+    ['dragleave', 'dragend'].forEach(evt => {
+      dropZone.addEventListener(evt, () => dropZone.classList.remove('dragover'));
+    });
+
+    dropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('dragover');
+      handleFile(e.dataTransfer.files[0]);
+    });
+
+    /* ── Boot ── */
+    loadCached();
+
+    /* ── Register service worker ── */
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
+    }
+  </script>
+</body>
+</html>
