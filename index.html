@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>SiteVault</title>
 
-  <!-- PWA / Safari home screen -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="SiteVault" />
@@ -60,7 +59,6 @@
       padding: calc(var(--safe-top) + 24px) 24px calc(var(--safe-bottom) + 24px);
       background: var(--bg);
       z-index: 100;
-      /* Start invisible — JS reveals it only if no cache found */
       opacity: 0; pointer-events: none;
       transition: opacity 0.4s ease, transform 0.4s ease;
     }
@@ -135,11 +133,11 @@
       width: 100%; flex: 1; border: none; display: block; background: #fff;
     }
 
-    /* ─── CLEAR BUTTON ──────────────────────────────────── */
-    #clear-btn {
+    /* ─── PILL BUTTONS ──────────────────────────────────── */
+    .pill-btn {
       position: fixed;
       bottom: calc(var(--safe-bottom) + 16px);
-      right: 16px; z-index: 200;
+      z-index: 200;
       background: rgba(10, 10, 15, 0.85);
       backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
       border: 1px solid var(--border-bright); border-radius: 50px;
@@ -147,13 +145,22 @@
       font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em;
       color: var(--text-muted); cursor: pointer;
       display: none; align-items: center; gap: 6px;
-      transition: color 0.2s, border-color 0.2s;
-      opacity: 0; animation: fadeInBtn 0.6s 0.8s ease forwards;
+      opacity: 0;
+      transition: color 0.2s, border-color 0.2s, opacity 0.3s ease;
     }
-    #clear-btn.show { display: flex; }
+    .pill-btn.show {
+      display: flex;
+      animation: fadeInBtn 0.6s 0.8s ease forwards;
+    }
     @keyframes fadeInBtn { to { opacity: 1; } }
+    .pill-btn svg { width: 12px; height: 12px; }
+
+    /* finalize sits to the left of clear */
+    #finalize-btn { right: calc(16px + 68px + 8px); }
+    #finalize-btn:hover { color: var(--accent); border-color: var(--accent); }
+
+    #clear-btn { right: 16px; }
     #clear-btn:hover { color: var(--danger); border-color: var(--danger); }
-    #clear-btn svg { width: 12px; height: 12px; }
 
     /* ─── PROGRESS BAR ──────────────────────────────────── */
     #progress {
@@ -211,7 +218,14 @@
   ></iframe>
 </div>
 
-<button id="clear-btn" aria-label="Remove cached site">
+<button class="pill-btn" id="finalize-btn" aria-label="Finalize — hide all controls">
+  <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M2 6.5L4.5 9L10 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  finalize
+</button>
+
+<button class="pill-btn" id="clear-btn" aria-label="Remove cached site">
   <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
     <path d="M2 2L10 10M10 2L2 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
   </svg>
@@ -219,38 +233,12 @@
 </button>
 
 <script>
-/* ══════════════════════════════════════════════════════════
-   SiteVault — persistent caching via IndexedDB + Cache API
-
-   Why not localStorage?
-   • 5 MB limit — big HTML sites overflow it silently
-   • Safari's ITP (Intelligent Tracking Prevention) clears
-     script-writable storage after 7 days of non-use
-   • Standalone (home screen) mode has separate storage
-     from regular Safari in older iOS versions
-
-   Our strategy (two redundant layers):
-   1. IndexedDB  — stores the raw HTML string (up to ~500MB).
-                   Very durable. Survives home screen mode.
-   2. Cache API  — stores the HTML as a Response object at a
-                   synthetic URL `/_sv_site_`. The service
-                   worker intercepts that URL and serves it,
-                   so the iframe can point at a real URL
-                   instead of an ephemeral blob: URL.
-
-   On boot we check the Cache API first (fastest, no parse
-   needed). If it's missing (e.g. SW cache was evicted), we
-   read from IndexedDB and repopulate the Cache API.
-
-   We also call storage.persist() to mark this origin as
-   durable so iOS won't evict it as aggressively.
-══════════════════════════════════════════════════════════ */
-
   const USER_SITE_URL = '/_sv_site_';
   const USER_CACHE    = 'sitevault-user-v2';
   const IDB_NAME      = 'sitevault';
   const IDB_STORE     = 'data';
-  const IDB_KEY       = 'html';
+  const IDB_KEY_HTML  = 'html';
+  const IDB_KEY_FINAL = 'finalized';
 
   const uploadScreen = document.getElementById('upload-screen');
   const viewerScreen = document.getElementById('viewer-screen');
@@ -258,6 +246,7 @@
   const fileInput    = document.getElementById('file-input');
   const dropZone     = document.getElementById('drop-zone');
   const clearBtn     = document.getElementById('clear-btn');
+  const finalizeBtn  = document.getElementById('finalize-btn');
   const progressEl   = document.getElementById('progress');
 
   /* ── Progress bar ─────────────────────────────────────── */
@@ -272,16 +261,15 @@
     }, 400);
   }
 
-  /* ══ IndexedDB helpers ════════════════════════════════════
-     Tiny async wrapper — avoids a library dependency.       */
+  /* ══ IndexedDB helpers ════════════════════════════════════ */
   function openDB() {
     return new Promise((resolve, reject) => {
       const req = indexedDB.open(IDB_NAME, 1);
       req.onupgradeneeded = (e) => {
         e.target.result.createObjectStore(IDB_STORE);
       };
-      req.onsuccess  = (e) => resolve(e.target.result);
-      req.onerror    = (e) => reject(e.target.error);
+      req.onsuccess = (e) => resolve(e.target.result);
+      req.onerror   = (e) => reject(e.target.error);
     });
   }
 
@@ -315,18 +303,13 @@
     });
   }
 
-  /* ══ Cache API helpers ════════════════════════════════════
-     Writes the HTML string as a Response in the named cache,
-     keyed at USER_SITE_URL, so the service worker can serve
-     it as a real network response.                          */
+  /* ══ Cache API helpers ════════════════════════════════════ */
   async function cacheWrite(html) {
     try {
       const cache = await caches.open(USER_CACHE);
       await cache.put(
         USER_SITE_URL,
-        new Response(html, {
-          headers: { 'Content-Type': 'text/html; charset=utf-8' }
-        })
+        new Response(html, { headers: { 'Content-Type': 'text/html; charset=utf-8' } })
       );
       return true;
     } catch (err) {
@@ -339,9 +322,7 @@
     try {
       const res = await caches.match(USER_SITE_URL);
       return res ? res.text() : null;
-    } catch {
-      return null;
-    }
+    } catch { return null; }
   }
 
   async function cacheClear() {
@@ -351,51 +332,67 @@
     } catch { /* ignore */ }
   }
 
-  /* ══ Storage persistence request ═════════════════════════
-     Asks the browser to mark this origin as durable so iOS
-     doesn't evict our data under storage pressure.         */
+  /* ══ Storage persistence ═════════════════════════════════ */
   async function requestPersistence() {
     try {
-      if (navigator.storage?.persist) {
-        const granted = await navigator.storage.persist();
-        console.info('[SiteVault] Persistent storage:', granted ? 'granted' : 'denied');
-      }
+      if (navigator.storage?.persist) await navigator.storage.persist();
     } catch { /* not critical */ }
   }
 
   /* ══ Store HTML in both layers ════════════════════════════ */
   async function storeEverywhere(html) {
-    // Write both in parallel; either succeeding is fine
-    const [cacheOk] = await Promise.allSettled([
+    await Promise.allSettled([
       cacheWrite(html),
-      idbPut(IDB_KEY, html),
+      idbPut(IDB_KEY_HTML, html),
     ]);
-
-    // If Cache API worked, tell the SW too (belt-and-suspenders)
     if (navigator.serviceWorker?.controller) {
-      navigator.serviceWorker.controller.postMessage({
-        type: 'STORE_HTML',
-        html,
-      });
+      navigator.serviceWorker.controller.postMessage({ type: 'STORE_HTML', html });
     }
   }
 
+  /* ══ Finalized state ══════════════════════════════════════
+     Hides both buttons and the progress bar permanently.
+     Stored in IDB so it persists across app restarts.       */
+  function hideAllControls() {
+    // Instantly remove both buttons and the progress bar
+    clearBtn.style.display    = 'none';
+    finalizeBtn.style.display = 'none';
+    progressEl.style.display  = 'none';
+  }
+
+  async function doFinalize() {
+    await idbPut(IDB_KEY_FINAL, true);
+    // Fade out then remove
+    clearBtn.style.opacity    = '0';
+    finalizeBtn.style.opacity = '0';
+    setTimeout(hideAllControls, 300);
+  }
+
   /* ══ UI: show viewer ══════════════════════════════════════ */
-  function showViewer() {
-    siteFrame.onload = () => { setProgress(100); clearProgress(); };
+  function showViewer(isFinalized) {
+    if (!isFinalized) {
+      siteFrame.onload = () => { setProgress(100); clearProgress(); };
+    }
     siteFrame.src = USER_SITE_URL;
 
     uploadScreen.classList.remove('visible');
     uploadScreen.classList.add('hidden');
     viewerScreen.classList.add('visible');
-    clearBtn.classList.add('show');
+
+    if (isFinalized) {
+      hideAllControls();
+    } else {
+      clearBtn.classList.add('show');
+      finalizeBtn.classList.add('show');
+    }
   }
 
-  /* ══ Clear everything ════════════════════════════════════ */
+  /* ══ Clear everything (resets finalized too) ═════════════ */
   async function clearAll() {
     await Promise.allSettled([
       cacheClear(),
-      idbDelete(IDB_KEY),
+      idbDelete(IDB_KEY_HTML),
+      idbDelete(IDB_KEY_FINAL),
     ]);
     if (navigator.serviceWorker?.controller) {
       navigator.serviceWorker.controller.postMessage({ type: 'CLEAR_HTML' });
@@ -403,6 +400,13 @@
     siteFrame.src = 'about:blank';
     viewerScreen.classList.remove('visible');
     clearBtn.classList.remove('show');
+    finalizeBtn.classList.remove('show');
+    // Restore visibility of controls in case they were hidden
+    clearBtn.style.display    = '';
+    finalizeBtn.style.display = '';
+    progressEl.style.display  = '';
+    clearBtn.style.opacity    = '';
+    finalizeBtn.style.opacity = '';
     uploadScreen.classList.remove('hidden');
     uploadScreen.classList.add('visible');
   }
@@ -411,53 +415,52 @@
   async function handleFile(file) {
     if (!file || !file.name.match(/\.html?$/i)) return;
     setProgress(20);
-
     const html = await file.text();
     setProgress(50);
-
     await storeEverywhere(html);
     setProgress(80);
-
-    showViewer();
+    showViewer(false);
   }
 
-  /* ══ Boot: check caches on startup ══════════════════════ */
+  /* ══ Boot ════════════════════════════════════════════════ */
   async function boot() {
     await requestPersistence();
 
-    // 1️⃣ Try Cache API first (fastest path — SW serves directly)
-    const fromCache = await cacheRead();
-    if (fromCache) {
-      showViewer();
-      return;
-    }
+    let isFinalized = false;
+    try { isFinalized = !!(await idbGet(IDB_KEY_FINAL)); } catch { /* ignore */ }
 
-    // 2️⃣ Fallback: try IndexedDB (repopulate Cache API too)
+    // 1️⃣ Try Cache API first
+    const fromCache = await cacheRead();
+    if (fromCache) { showViewer(isFinalized); return; }
+
+    // 2️⃣ Fallback: IndexedDB
     try {
-      const fromIDB = await idbGet(IDB_KEY);
+      const fromIDB = await idbGet(IDB_KEY_HTML);
       if (fromIDB) {
-        // Repopulate the Cache API so SW can serve it next time
         await cacheWrite(fromIDB);
-        showViewer();
+        showViewer(isFinalized);
         return;
       }
     } catch (err) {
       console.warn('[SiteVault] IDB read failed:', err);
     }
 
-    // 3️⃣ Nothing stored — reveal upload screen
+    // 3️⃣ Nothing — show upload screen
     uploadScreen.classList.add('visible');
   }
 
   /* ── Event listeners ──────────────────────────────────── */
+  finalizeBtn.addEventListener('click', () => {
+    if (!confirm('Hide all controls permanently?\n\nTo reset later, visit the site in regular Safari (not the home screen shortcut) and clear site data.')) return;
+    doFinalize();
+  });
+
   clearBtn.addEventListener('click', async () => {
     if (!confirm('Remove the cached site and return to the upload screen?')) return;
     await clearAll();
   });
 
-  fileInput.addEventListener('change', (e) => {
-    handleFile(e.target.files[0]);
-  });
+  fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
 
   dropZone.addEventListener('dragover', (e) => {
     e.preventDefault();
@@ -472,14 +475,11 @@
     handleFile(e.dataTransfer.files[0]);
   });
 
-  /* ── Register service worker, then boot ──────────────── */
+  /* ── Register SW, then boot ───────────────────────────── */
   async function init() {
     if ('serviceWorker' in navigator) {
       try {
         const reg = await navigator.serviceWorker.register('/sw.js');
-
-        // If a new SW just installed, wait for it to activate
-        // so it can intercept /_sv_site_ requests
         if (reg.installing || reg.waiting) {
           await new Promise((resolve) => {
             const sw = reg.installing || reg.waiting;
@@ -495,7 +495,6 @@
         console.warn('[SiteVault] SW registration failed:', err);
       }
     }
-
     await boot();
   }
 
