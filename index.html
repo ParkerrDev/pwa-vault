@@ -12,10 +12,13 @@
   <meta name="theme-color" content="#0a0a0f" />
 
   <link rel="manifest" href="/manifest.json" />
-  <link rel="apple-touch-icon" href="/icons/icon-192.png" />
-  <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152.png" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/icons/icon-180.png" />
-  <link rel="apple-touch-icon" sizes="167x167" href="/icons/icon-167.png" />
+
+  <!-- These are replaced at runtime with the user's custom icon data URL -->
+  <link id="ati-any"  rel="apple-touch-icon"              href="/icons/icon-192.png" />
+  <link id="ati-152"  rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152.png" />
+  <link id="ati-180"  rel="apple-touch-icon" sizes="180x180" href="/icons/icon-180.png" />
+  <link id="ati-167"  rel="apple-touch-icon" sizes="167x167" href="/icons/icon-167.png" />
+  <link id="favicon"  rel="icon"             type="image/png" href="/icons/icon-192.png" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -104,9 +107,7 @@
       position: absolute; inset: 0; opacity: 0;
       cursor: pointer; width: 100%; height: 100%;
     }
-
     .drop-icon { width: 48px; height: 48px; margin: 0 auto 16px; opacity: 0.5; }
-
     .drop-title {
       font-family: var(--display); font-size: 16px; font-weight: 600;
       color: var(--text); margin-bottom: 6px;
@@ -155,12 +156,115 @@
     @keyframes fadeInBtn { to { opacity: 1; } }
     .pill-btn svg { width: 12px; height: 12px; }
 
-    /* finalize sits to the left of clear */
+    /* layout: [icon] [finalize] [clear] from right */
+    #clear-btn    { right: 16px; }
+    #clear-btn:hover { color: var(--danger); border-color: var(--danger); }
+
     #finalize-btn { right: calc(16px + 68px + 8px); }
     #finalize-btn:hover { color: var(--accent); border-color: var(--accent); }
 
-    #clear-btn { right: 16px; }
-    #clear-btn:hover { color: var(--danger); border-color: var(--danger); }
+    #icon-btn     { right: calc(16px + 68px + 8px + 82px + 8px); }
+    #icon-btn:hover { color: #e8c86a; border-color: #e8c86a; }
+
+    /* ─── ICON PICKER MODAL ─────────────────────────────── */
+    #icon-modal {
+      position: fixed; inset: 0; z-index: 500;
+      display: flex; align-items: flex-end; justify-content: center;
+      padding-bottom: calc(var(--safe-bottom) + 16px);
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.25s ease;
+    }
+    #icon-modal.open { opacity: 1; pointer-events: all; }
+
+    .icon-sheet {
+      width: 100%; max-width: 420px;
+      background: #16161f;
+      border: 1px solid var(--border-bright);
+      border-radius: 20px;
+      padding: 24px;
+      display: flex; flex-direction: column; gap: 20px;
+      transform: translateY(20px);
+      transition: transform 0.25s ease;
+    }
+    #icon-modal.open .icon-sheet { transform: translateY(0); }
+
+    .sheet-title {
+      font-family: var(--display); font-size: 14px; font-weight: 700;
+      color: var(--text); letter-spacing: -0.2px;
+    }
+    .sheet-sub {
+      font-size: 10px; color: var(--text-muted);
+      letter-spacing: 0.06em; margin-top: 2px; line-height: 1.6;
+    }
+
+    /* preview + upload row */
+    .icon-row {
+      display: flex; align-items: center; gap: 16px;
+    }
+
+    .icon-preview {
+      width: 72px; height: 72px;
+      border-radius: 16px;
+      border: 1.5px solid var(--border-bright);
+      background: var(--surface);
+      overflow: hidden; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+    }
+    .icon-preview img {
+      width: 100%; height: 100%; object-fit: cover;
+      display: none;
+    }
+    .icon-preview img.loaded { display: block; }
+    .icon-preview .default-icon { opacity: 0.25; }
+
+    .icon-upload-area {
+      flex: 1; position: relative;
+      border: 1.5px dashed var(--border-bright); border-radius: 12px;
+      padding: 16px; text-align: center; cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      background: var(--surface);
+    }
+    .icon-upload-area:hover {
+      border-color: #e8c86a;
+      background: rgba(232,200,106,0.06);
+    }
+    .icon-upload-area input {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer;
+    }
+    .icon-upload-label {
+      font-size: 10px; color: var(--text-muted);
+      letter-spacing: 0.06em; line-height: 1.6;
+      pointer-events: none;
+    }
+    .icon-upload-label span { color: #e8c86a; font-weight: 500; }
+
+    /* sheet action buttons */
+    .sheet-actions {
+      display: flex; gap: 8px;
+    }
+    .sheet-btn {
+      flex: 1; padding: 10px;
+      border-radius: 10px; border: 1px solid var(--border-bright);
+      font-family: var(--mono); font-size: 10px; letter-spacing: 0.06em;
+      cursor: pointer; transition: background 0.15s, color 0.15s;
+    }
+    .sheet-btn.secondary {
+      background: var(--surface); color: var(--text-muted);
+    }
+    .sheet-btn.secondary:hover { color: var(--text); }
+    .sheet-btn.primary {
+      background: var(--accent); color: #fff;
+      border-color: var(--accent);
+    }
+    .sheet-btn.primary:hover { background: #6a59e0; }
+    .sheet-btn.danger {
+      background: var(--surface); color: var(--danger);
+      border-color: rgba(247,106,106,0.3);
+    }
+    .sheet-btn.danger:hover { background: rgba(247,106,106,0.1); }
 
     /* ─── PROGRESS BAR ──────────────────────────────────── */
     #progress {
@@ -182,6 +286,7 @@
 
 <div id="progress"></div>
 
+<!-- ── Upload screen ──────────────────────────────────────── -->
 <div id="upload-screen">
   <div class="logo-mark">
     <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -210,6 +315,7 @@
   </p>
 </div>
 
+<!-- ── Viewer screen ──────────────────────────────────────── -->
 <div id="viewer-screen">
   <iframe
     id="site-frame"
@@ -217,6 +323,16 @@
     title="Loaded site"
   ></iframe>
 </div>
+
+<!-- ── Control buttons ────────────────────────────────────── -->
+<button class="pill-btn" id="icon-btn" aria-label="Change home screen icon">
+  <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect x="1" y="2.5" width="10" height="7.5" rx="1.5" stroke="currentColor" stroke-width="1.2"/>
+    <circle cx="6" cy="6.25" r="1.75" stroke="currentColor" stroke-width="1.2"/>
+    <path d="M4 2.5V2a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1v.5" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
+  </svg>
+  icon
+</button>
 
 <button class="pill-btn" id="finalize-btn" aria-label="Finalize — hide all controls">
   <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -232,6 +348,46 @@
   clear
 </button>
 
+<!-- ── Icon picker modal ───────────────────────────────────── -->
+<div id="icon-modal">
+  <div class="icon-sheet">
+    <div>
+      <div class="sheet-title">Home screen icon</div>
+      <div class="sheet-sub">
+        Set a custom icon before using Share → Add to Home Screen.<br/>
+        Square images work best (any format). Rounded automatically by iOS.
+      </div>
+    </div>
+
+    <div class="icon-row">
+      <div class="icon-preview" id="icon-preview">
+        <!-- default SiteVault logo -->
+        <svg class="default-icon" width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="4" y="4" width="12" height="12" rx="2" fill="#7c6af7" opacity="0.9"/>
+          <rect x="20" y="4" width="12" height="12" rx="2" fill="#7c6af7" opacity="0.4"/>
+          <rect x="4" y="20" width="12" height="12" rx="2" fill="#7c6af7" opacity="0.4"/>
+          <rect x="20" y="20" width="12" height="12" rx="2" fill="#7c6af7" opacity="0.7"/>
+        </svg>
+        <img id="icon-preview-img" alt="Custom icon preview" />
+      </div>
+
+      <label class="icon-upload-area">
+        <input type="file" id="icon-file-input" accept="image/*" />
+        <div class="icon-upload-label">
+          tap to choose image<br/>
+          <span>png / jpg / svg / webp</span>
+        </div>
+      </label>
+    </div>
+
+    <div class="sheet-actions">
+      <button class="sheet-btn danger" id="icon-remove-btn">remove</button>
+      <button class="sheet-btn secondary" id="icon-cancel-btn">cancel</button>
+      <button class="sheet-btn primary" id="icon-save-btn">save icon</button>
+    </div>
+  </div>
+</div>
+
 <script>
   const USER_SITE_URL = '/_sv_site_';
   const USER_CACHE    = 'sitevault-user-v2';
@@ -239,20 +395,32 @@
   const IDB_STORE     = 'data';
   const IDB_KEY_HTML  = 'html';
   const IDB_KEY_FINAL = 'finalized';
+  const IDB_KEY_ICON  = 'icon';   // stores base64 data URL of custom icon
 
-  const uploadScreen = document.getElementById('upload-screen');
-  const viewerScreen = document.getElementById('viewer-screen');
-  const siteFrame    = document.getElementById('site-frame');
-  const fileInput    = document.getElementById('file-input');
-  const dropZone     = document.getElementById('drop-zone');
-  const clearBtn     = document.getElementById('clear-btn');
-  const finalizeBtn  = document.getElementById('finalize-btn');
-  const progressEl   = document.getElementById('progress');
+  const ICON_SIZE = 512; // canvas render size (high-res for retina)
+
+  const uploadScreen  = document.getElementById('upload-screen');
+  const viewerScreen  = document.getElementById('viewer-screen');
+  const siteFrame     = document.getElementById('site-frame');
+  const fileInput     = document.getElementById('file-input');
+  const dropZone      = document.getElementById('drop-zone');
+  const clearBtn      = document.getElementById('clear-btn');
+  const finalizeBtn   = document.getElementById('finalize-btn');
+  const iconBtn       = document.getElementById('icon-btn');
+  const progressEl    = document.getElementById('progress');
+
+  const iconModal      = document.getElementById('icon-modal');
+  const iconPreviewImg = document.getElementById('icon-preview-img');
+  const iconFileInput  = document.getElementById('icon-file-input');
+  const iconSaveBtn    = document.getElementById('icon-save-btn');
+  const iconCancelBtn  = document.getElementById('icon-cancel-btn');
+  const iconRemoveBtn  = document.getElementById('icon-remove-btn');
+
+  // Staging: holds the data URL chosen in the modal before saving
+  let stagedIconDataURL = null;
 
   /* ── Progress bar ─────────────────────────────────────── */
-  function setProgress(pct) {
-    progressEl.style.width = pct + '%';
-  }
+  function setProgress(pct) { progressEl.style.width = pct + '%'; }
   function clearProgress() {
     setTimeout(() => {
       progressEl.style.transition = 'none';
@@ -265,9 +433,7 @@
   function openDB() {
     return new Promise((resolve, reject) => {
       const req = indexedDB.open(IDB_NAME, 1);
-      req.onupgradeneeded = (e) => {
-        e.target.result.createObjectStore(IDB_STORE);
-      };
+      req.onupgradeneeded = (e) => e.target.result.createObjectStore(IDB_STORE);
       req.onsuccess = (e) => resolve(e.target.result);
       req.onerror   = (e) => reject(e.target.error);
     });
@@ -312,10 +478,7 @@
         new Response(html, { headers: { 'Content-Type': 'text/html; charset=utf-8' } })
       );
       return true;
-    } catch (err) {
-      console.warn('[SiteVault] Cache API write failed:', err);
-      return false;
-    }
+    } catch (err) { console.warn('[SiteVault] Cache write failed:', err); return false; }
   }
 
   async function cacheRead() {
@@ -341,30 +504,130 @@
 
   /* ══ Store HTML in both layers ════════════════════════════ */
   async function storeEverywhere(html) {
-    await Promise.allSettled([
-      cacheWrite(html),
-      idbPut(IDB_KEY_HTML, html),
-    ]);
+    await Promise.allSettled([cacheWrite(html), idbPut(IDB_KEY_HTML, html)]);
     if (navigator.serviceWorker?.controller) {
       navigator.serviceWorker.controller.postMessage({ type: 'STORE_HTML', html });
     }
   }
 
-  /* ══ Finalized state ══════════════════════════════════════
-     Hides both buttons and the progress bar permanently.
-     Stored in IDB so it persists across app restarts.       */
+  /* ══ Icon helpers ═════════════════════════════════════════
+     We resize the chosen image to ICON_SIZE × ICON_SIZE on
+     a canvas, then export as a PNG data URL. That data URL
+     is injected into every apple-touch-icon <link> and the
+     <link rel="icon"> so Safari picks it up when the user
+     taps "Add to Home Screen".                              */
+
+  function resizeImageToDataURL(file) {
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      const blobURL = URL.createObjectURL(file);
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width  = ICON_SIZE;
+        canvas.height = ICON_SIZE;
+        const ctx = canvas.getContext('2d');
+
+        // Fill white background (some icons are transparent)
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, ICON_SIZE, ICON_SIZE);
+
+        // Cover-fit: centre-crop to square
+        const srcW = img.naturalWidth;
+        const srcH = img.naturalHeight;
+        const side  = Math.min(srcW, srcH);
+        const sx    = (srcW - side) / 2;
+        const sy    = (srcH - side) / 2;
+        ctx.drawImage(img, sx, sy, side, side, 0, 0, ICON_SIZE, ICON_SIZE);
+
+        URL.revokeObjectURL(blobURL);
+        resolve(canvas.toDataURL('image/png'));
+      };
+      img.onerror = () => { URL.revokeObjectURL(blobURL); reject(new Error('Image load failed')); };
+      img.src = blobURL;
+    });
+  }
+
+  function applyIconToPage(dataURL) {
+    // Update every apple-touch-icon link and the favicon in <head>
+    ['ati-any', 'ati-152', 'ati-180', 'ati-167', 'favicon'].forEach((id) => {
+      const el = document.getElementById(id);
+      if (el) el.href = dataURL;
+    });
+  }
+
+  function clearIconFromPage() {
+    document.getElementById('ati-any').href  = '/icons/icon-192.png';
+    document.getElementById('ati-152').href  = '/icons/icon-152.png';
+    document.getElementById('ati-180').href  = '/icons/icon-180.png';
+    document.getElementById('ati-167').href  = '/icons/icon-167.png';
+    document.getElementById('favicon').href  = '/icons/icon-192.png';
+  }
+
+  /* ══ Icon modal ══════════════════════════════════════════ */
+  function openIconModal() {
+    stagedIconDataURL = null; // reset staging on each open
+    iconModal.classList.add('open');
+  }
+  function closeIconModal() {
+    iconModal.classList.remove('open');
+    stagedIconDataURL = null;
+    iconFileInput.value = '';
+  }
+
+  iconBtn.addEventListener('click', openIconModal);
+  iconCancelBtn.addEventListener('click', closeIconModal);
+  iconModal.addEventListener('click', (e) => {
+    if (e.target === iconModal) closeIconModal();
+  });
+
+  // User picks a new image → resize & show preview (staged, not yet saved)
+  iconFileInput.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+      const dataURL = await resizeImageToDataURL(file);
+      stagedIconDataURL = dataURL;
+      // Update preview
+      iconPreviewImg.src = dataURL;
+      iconPreviewImg.classList.add('loaded');
+      document.querySelector('.icon-preview .default-icon').style.display = 'none';
+    } catch (err) {
+      alert('Could not load image. Please try a different file.');
+      console.error(err);
+    }
+  });
+
+  // Save button → persist & apply
+  iconSaveBtn.addEventListener('click', async () => {
+    if (!stagedIconDataURL) { closeIconModal(); return; }
+    await idbPut(IDB_KEY_ICON, stagedIconDataURL);
+    applyIconToPage(stagedIconDataURL);
+    closeIconModal();
+  });
+
+  // Remove button → delete saved icon, restore defaults
+  iconRemoveBtn.addEventListener('click', async () => {
+    await idbDelete(IDB_KEY_ICON);
+    clearIconFromPage();
+    iconPreviewImg.src = '';
+    iconPreviewImg.classList.remove('loaded');
+    document.querySelector('.icon-preview .default-icon').style.display = '';
+    stagedIconDataURL = null;
+    iconFileInput.value = '';
+    closeIconModal();
+  });
+
+  /* ══ Finalized state ══════════════════════════════════════ */
   function hideAllControls() {
-    // Instantly remove both buttons and the progress bar
     clearBtn.style.display    = 'none';
     finalizeBtn.style.display = 'none';
+    iconBtn.style.display     = 'none';
     progressEl.style.display  = 'none';
   }
 
   async function doFinalize() {
     await idbPut(IDB_KEY_FINAL, true);
-    // Fade out then remove
-    clearBtn.style.opacity    = '0';
-    finalizeBtn.style.opacity = '0';
+    [clearBtn, finalizeBtn, iconBtn].forEach((b) => b.style.opacity = '0');
     setTimeout(hideAllControls, 300);
   }
 
@@ -384,34 +647,34 @@
     } else {
       clearBtn.classList.add('show');
       finalizeBtn.classList.add('show');
+      iconBtn.classList.add('show');
     }
   }
 
-  /* ══ Clear everything (resets finalized too) ═════════════ */
+  /* ══ Clear everything ════════════════════════════════════ */
   async function clearAll() {
     await Promise.allSettled([
       cacheClear(),
       idbDelete(IDB_KEY_HTML),
       idbDelete(IDB_KEY_FINAL),
+      // Note: we intentionally keep the icon so re-uploading keeps the same icon
     ]);
     if (navigator.serviceWorker?.controller) {
       navigator.serviceWorker.controller.postMessage({ type: 'CLEAR_HTML' });
     }
     siteFrame.src = 'about:blank';
     viewerScreen.classList.remove('visible');
-    clearBtn.classList.remove('show');
-    finalizeBtn.classList.remove('show');
-    // Restore visibility of controls in case they were hidden
-    clearBtn.style.display    = '';
-    finalizeBtn.style.display = '';
-    progressEl.style.display  = '';
-    clearBtn.style.opacity    = '';
-    finalizeBtn.style.opacity = '';
+    [clearBtn, finalizeBtn, iconBtn].forEach((b) => {
+      b.classList.remove('show');
+      b.style.display  = '';
+      b.style.opacity  = '';
+    });
+    progressEl.style.display = '';
     uploadScreen.classList.remove('hidden');
     uploadScreen.classList.add('visible');
   }
 
-  /* ══ Handle uploaded file ════════════════════════════════ */
+  /* ══ Handle uploaded HTML file ════════════════════════════ */
   async function handleFile(file) {
     if (!file || !file.name.match(/\.html?$/i)) return;
     setProgress(20);
@@ -425,6 +688,18 @@
   /* ══ Boot ════════════════════════════════════════════════ */
   async function boot() {
     await requestPersistence();
+
+    // Load stored icon first — must be applied before Safari screenshots the page
+    try {
+      const storedIcon = await idbGet(IDB_KEY_ICON);
+      if (storedIcon) {
+        applyIconToPage(storedIcon);
+        // Also populate modal preview in case user opens it
+        iconPreviewImg.src = storedIcon;
+        iconPreviewImg.classList.add('loaded');
+        document.querySelector('.icon-preview .default-icon').style.display = 'none';
+      }
+    } catch { /* ignore */ }
 
     let isFinalized = false;
     try { isFinalized = !!(await idbGet(IDB_KEY_FINAL)); } catch { /* ignore */ }
@@ -445,13 +720,13 @@
       console.warn('[SiteVault] IDB read failed:', err);
     }
 
-    // 3️⃣ Nothing — show upload screen
+    // 3️⃣ Nothing stored — show upload screen
     uploadScreen.classList.add('visible');
   }
 
   /* ── Event listeners ──────────────────────────────────── */
   finalizeBtn.addEventListener('click', () => {
-    if (!confirm('Hide all controls permanently?\n\nTo reset later, visit the site in regular Safari (not the home screen shortcut) and clear site data.')) return;
+    if (!confirm('Hide all controls permanently?\n\nTo reset later, visit the site in regular Safari and clear site data from Settings.')) return;
     doFinalize();
   });
 
@@ -463,8 +738,7 @@
   fileInput.addEventListener('change', (e) => handleFile(e.target.files[0]));
 
   dropZone.addEventListener('dragover', (e) => {
-    e.preventDefault();
-    dropZone.classList.add('dragover');
+    e.preventDefault(); dropZone.classList.add('dragover');
   });
   ['dragleave', 'dragend'].forEach((evt) =>
     dropZone.addEventListener(evt, () => dropZone.classList.remove('dragover'))
