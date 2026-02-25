@@ -301,6 +301,106 @@
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
       opacity: 0.025; pointer-events: none; z-index: -1;
     }
+
+    /* ─── SETUP STEPS (browser mode only) ──────────────── */
+    #setup-steps {
+      width: 100%; max-width: 380px;
+      margin-bottom: 24px;
+    }
+
+    .steps-title {
+      font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--text-dim); margin-bottom: 12px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .steps-title::after {
+      content: ''; flex: 1; height: 1px; background: var(--border);
+    }
+
+    .steps-list {
+      display: flex; flex-direction: column; gap: 0;
+    }
+
+    .step {
+      display: flex; align-items: flex-start; gap: 12px;
+      position: relative;
+    }
+
+    /* vertical connector line between steps */
+    .step:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      left: 15px; top: 32px;
+      width: 1px; height: calc(100% - 8px);
+      background: linear-gradient(to bottom, var(--border-bright), var(--border));
+    }
+
+    .step-left {
+      display: flex; flex-direction: column; align-items: center;
+      flex-shrink: 0; padding-top: 2px;
+    }
+
+    .step-num {
+      width: 30px; height: 30px; border-radius: 50%;
+      background: var(--surface);
+      border: 1px solid var(--border-bright);
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      font-family: var(--display); font-size: 11px; font-weight: 700;
+      color: var(--text-dim);
+      position: relative; z-index: 1;
+    }
+
+    .step.active .step-num {
+      background: var(--accent-glow);
+      border-color: var(--accent);
+      color: var(--accent);
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    .step.done .step-num {
+      background: rgba(106, 247, 168, 0.1);
+      border-color: rgba(106, 247, 168, 0.4);
+      color: #6af7a8;
+    }
+
+    /* checkmark icon for done steps */
+    .step-check {
+      display: none;
+    }
+    .step.done .step-num-text { display: none; }
+    .step.done .step-check { display: block; }
+
+    .step-body {
+      padding: 4px 0 18px;
+      flex: 1;
+    }
+
+    .step-label {
+      font-family: var(--display); font-size: 12px; font-weight: 600;
+      color: var(--text-muted); margin-bottom: 2px;
+      line-height: 1.3;
+    }
+    .step.active .step-label { color: var(--text); }
+    .step.done   .step-label { color: var(--text-muted); text-decoration: line-through; text-decoration-color: var(--text-dim); }
+
+    .step-detail {
+      font-size: 10px; color: var(--text-dim);
+      letter-spacing: 0.03em; line-height: 1.6;
+    }
+    .step.active .step-detail { color: var(--text-muted); }
+
+    .step-detail .chip {
+      display: inline-flex; align-items: center; gap: 4px;
+      background: var(--surface); border: 1px solid var(--border-bright);
+      border-radius: 6px; padding: 1px 6px;
+      font-size: 9.5px; color: var(--text-muted);
+      vertical-align: middle; position: relative; top: -1px;
+    }
+    .step-detail .chip svg { width: 9px; height: 9px; flex-shrink: 0; }
+
+    .step-detail .hl { color: var(--gold); font-weight: 500; }
+
   </style>
 </head>
 <body>
@@ -321,8 +421,92 @@
   <div class="wordmark">SiteVault</div>
   <div class="tagline">cache &amp; launch any html site</div>
 
+  <!-- ── Setup steps (browser mode only) ──────────────── -->
+  <div id="setup-steps">
+    <div class="steps-title">How to set up</div>
+    <div class="steps-list">
+
+      <!-- Step 1 -->
+      <div class="step active" id="step-1">
+        <div class="step-left">
+          <div class="step-num">
+            <span class="step-num-text">1</span>
+            <svg class="step-check" width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M2 6.5L4.5 9L10 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+        <div class="step-body">
+          <div class="step-label">Set your app icon <span style="font-size:10px;font-family:var(--mono);font-weight:400;color:var(--text-dim);">(optional)</span></div>
+          <div class="step-detail">Upload a custom image below so Safari uses it for your home screen shortcut.</div>
+        </div>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="step" id="step-2">
+        <div class="step-left">
+          <div class="step-num">
+            <span class="step-num-text">2</span>
+            <svg class="step-check" width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M2 6.5L4.5 9L10 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+        <div class="step-body">
+          <div class="step-label">Tap Share in Safari</div>
+          <div class="step-detail">
+            Press the
+            <span class="chip">
+              <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M6 1v7M3.5 3.5L6 1l2.5 2.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M2 7v3.5h8V7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Share
+            </span>
+            button in the Safari toolbar.
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="step" id="step-3">
+        <div class="step-left">
+          <div class="step-num">
+            <span class="step-num-text">3</span>
+            <svg class="step-check" width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M2 6.5L4.5 9L10 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+        <div class="step-body">
+          <div class="step-label">Add to Home Screen</div>
+          <div class="step-detail">
+            Scroll down the Share sheet and tap <span class="hl">Add to Home Screen</span>, then tap <span class="hl">Add</span>.
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4 -->
+      <div class="step" id="step-4">
+        <div class="step-left">
+          <div class="step-num">
+            <span class="step-num-text">4</span>
+            <svg class="step-check" width="12" height="12" viewBox="0 0 12 12" fill="none">
+              <path d="M2 6.5L4.5 9L10 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+        </div>
+        <div class="step-body">
+          <div class="step-label">Open the app &amp; upload your site</div>
+          <div class="step-detail">Launch SiteVault from your home screen. The file uploader will appear — drop your <span class="hl">.html</span> file in.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
   <!-- ── Icon uploader ──────────────────────────────────── -->
-  <div class="section-label">App icon</div>
+  <div class="section-label" id="icon-section-label">App icon</div>
 
   <div class="icon-uploader" id="icon-uploader">
     <!-- Full-card invisible file input for iOS tap anywhere -->
@@ -364,7 +548,7 @@
   </div>
 
   <!-- ── HTML uploader ──────────────────────────────────── -->
-  <div class="section-label-2">Site</div>
+  <div class="section-label-2" id="site-section-label">Site</div>
 
   <div class="drop-zone" id="drop-zone">
     <input type="file" id="file-input" accept=".html,.htm" />
@@ -466,6 +650,24 @@
   const viewerIconInput = document.getElementById('viewer-icon-input');
 
   const allViewerBtns   = [clearBtn, finalizeBtn, iconBtn];
+
+  /* ── Step progress helpers (browser mode only) ─────────────── */
+  function markStepDone(n) {
+    const el   = document.getElementById('step-' + n);
+    const next = document.getElementById('step-' + (n + 1));
+    if (!el) return;
+    el.classList.add('done');
+    el.classList.remove('active');
+    if (next) next.classList.add('active');
+  }
+  function unmarkStepDone(n) {
+    const el   = document.getElementById('step-' + n);
+    const next = document.getElementById('step-' + (n + 1));
+    if (!el) return;
+    el.classList.remove('done');
+    el.classList.add('active');
+    if (next) next.classList.remove('active');
+  }
 
   /* ── Progress bar ─────────────────────────────────────────── */
   function setProgress(pct) { progressEl.style.width = pct + '%'; }
@@ -610,6 +812,7 @@
       await idbPut(IDB_KEY_ICON, dataURL);
       applyIconToPage(dataURL);
       showIconInPicker(dataURL);
+      markStepDone(1);
     } catch (err) {
       alert('Could not process image. Please try another file.');
       console.error(err);
@@ -627,6 +830,7 @@
     await idbDelete(IDB_KEY_ICON);
     resetIconOnPage();
     clearIconInPicker();
+    unmarkStepDone(1);
   });
 
   // Drag-over visual feedback on the icon card
@@ -780,6 +984,24 @@
         }
       } catch (err) { console.warn('[SiteVault] SW registration failed:', err); }
     }
+    // Detect whether running as installed PWA (standalone) or regular browser.
+    // window.navigator.standalone is iOS Safari-specific; matchMedia covers other browsers.
+    const isStandalone = window.navigator.standalone === true ||
+                         window.matchMedia('(display-mode: standalone)').matches;
+
+    // Standalone (home screen app): show HTML uploader only — no icon picker needed here,
+    //   the page is already saved as a shortcut.
+    // Browser: show icon picker only — user sets the icon before adding to home screen.
+    if (isStandalone) {
+      document.getElementById('icon-section-label').style.display = 'none';
+      document.getElementById('icon-uploader').style.display = 'none';
+      document.getElementById('setup-steps').style.display = 'none';
+    } else {
+      document.getElementById('site-section-label').style.display = 'none';
+      document.getElementById('drop-zone').style.display = 'none';
+      document.querySelector('.hint').style.display = 'none';
+    }
+
     await boot();
   }
 
