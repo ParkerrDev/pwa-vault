@@ -60,9 +60,12 @@
       padding: calc(var(--safe-top) + 24px) 24px calc(var(--safe-bottom) + 24px);
       background: var(--bg);
       z-index: 100;
+      /* Start invisible — JS reveals it only if no cache found */
+      opacity: 0; pointer-events: none;
       transition: opacity 0.4s ease, transform 0.4s ease;
     }
-    #upload-screen.hidden { opacity: 0; pointer-events: none; transform: scale(0.96); }
+    #upload-screen.visible { opacity: 1; pointer-events: all; }
+    #upload-screen.hidden  { opacity: 0; pointer-events: none; transform: scale(0.96); }
 
     .logo-mark {
       width: 72px; height: 72px; border-radius: 18px;
@@ -382,6 +385,7 @@
     siteFrame.onload = () => { setProgress(100); clearProgress(); };
     siteFrame.src = USER_SITE_URL;
 
+    uploadScreen.classList.remove('visible');
     uploadScreen.classList.add('hidden');
     viewerScreen.classList.add('visible');
     clearBtn.classList.add('show');
@@ -400,6 +404,7 @@
     viewerScreen.classList.remove('visible');
     clearBtn.classList.remove('show');
     uploadScreen.classList.remove('hidden');
+    uploadScreen.classList.add('visible');
   }
 
   /* ══ Handle uploaded file ════════════════════════════════ */
@@ -440,7 +445,8 @@
       console.warn('[SiteVault] IDB read failed:', err);
     }
 
-    // 3️⃣ Nothing stored — show upload screen (already visible)
+    // 3️⃣ Nothing stored — reveal upload screen
+    uploadScreen.classList.add('visible');
   }
 
   /* ── Event listeners ──────────────────────────────────── */
