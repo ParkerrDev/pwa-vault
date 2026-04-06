@@ -35,13 +35,68 @@
       --gold: #e8c86a;
       --gold-glow: rgba(232, 200, 106, 0.12);
       --text: #e8e8f0;
-      --text-muted: #6b6b80;
-      --text-dim: #3a3a50;
+      --text-muted: #b8b8d0;
+      --text-dim: #8080a8;
       --danger: #f76a6a;
       --mono: 'DM Mono', monospace;
       --display: 'Syne', sans-serif;
       --safe-top: env(safe-area-inset-top, 0px);
       --safe-bottom: env(safe-area-inset-bottom, 0px);
+      --pill-bg: rgba(10, 10, 15, 0.88);
+    }
+
+    /* ─── LIGHT MODE ──────────────────────────────────────── */
+    @media (prefers-color-scheme: light) {
+      :root:not([data-theme="dark"]) {
+        --bg: #f2f2f7;
+        --surface: #ffffff;
+        --border: #dcdce8;
+        --border-bright: #bdbdce;
+        --accent: #5848e0;
+        --accent-glow: rgba(88, 72, 224, 0.10);
+        --accent-dim: #7c6af7;
+        --gold: #8a6608;
+        --gold-glow: rgba(138, 102, 8, 0.10);
+        --text: #18182a;
+        --text-muted: #46465e;
+        --text-dim: #8080a0;
+        --danger: #c02020;
+        --pill-bg: rgba(242, 242, 247, 0.94);
+      }
+    }
+
+    [data-theme="light"] {
+      --bg: #f2f2f7;
+      --surface: #ffffff;
+      --border: #dcdce8;
+      --border-bright: #bdbdce;
+      --accent: #5848e0;
+      --accent-glow: rgba(88, 72, 224, 0.10);
+      --accent-dim: #7c6af7;
+      --gold: #8a6608;
+      --gold-glow: rgba(138, 102, 8, 0.10);
+      --text: #18182a;
+      --text-muted: #46465e;
+      --text-dim: #8080a0;
+      --danger: #c02020;
+      --pill-bg: rgba(242, 242, 247, 0.94);
+    }
+
+    [data-theme="dark"] {
+      --bg: #0a0a0f;
+      --surface: #111118;
+      --border: #1e1e2e;
+      --border-bright: #2e2e4e;
+      --accent: #7c6af7;
+      --accent-glow: rgba(124, 106, 247, 0.18);
+      --accent-dim: #4a3fa3;
+      --gold: #e8c86a;
+      --gold-glow: rgba(232, 200, 106, 0.12);
+      --text: #e8e8f0;
+      --text-muted: #b8b8d0;
+      --text-dim: #8080a8;
+      --danger: #f76a6a;
+      --pill-bg: rgba(10, 10, 15, 0.88);
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -90,15 +145,15 @@
       letter-spacing: -0.5px; color: var(--text); margin-bottom: 6px;
     }
     .tagline {
-      font-size: 11px; color: var(--text-muted);
-      letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 32px;
+      font-size: 13px; color: var(--text-muted);
+      letter-spacing: 0.10em; text-transform: uppercase; margin-bottom: 32px;
     }
 
     /* ─── SECTION DIVIDER ───────────────────────────────── */
     .section-label {
       width: 100%; max-width: 380px;
-      font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
-      color: var(--text-dim); margin-bottom: 10px;
+      font-size: 11px; letter-spacing: 0.10em; text-transform: uppercase;
+      color: var(--text-muted); margin-bottom: 10px;
       display: flex; align-items: center; gap: 10px;
     }
     .section-label::after {
@@ -178,19 +233,19 @@
     /* Text side */
     .icon-text { flex: 1; pointer-events: none; }
     .icon-text-title {
-      font-family: var(--display); font-size: 13px; font-weight: 600;
+      font-family: var(--display); font-size: 14px; font-weight: 600;
       color: var(--text); margin-bottom: 4px;
     }
     .icon-text-sub {
-      font-size: 10px; color: var(--text-muted);
-      letter-spacing: 0.04em; line-height: 1.6;
+      font-size: 12px; color: var(--text-muted);
+      letter-spacing: 0.02em; line-height: 1.6;
     }
     .icon-text-sub .gold { color: var(--gold); }
 
     /* Remove icon link */
     .icon-remove-link {
-      font-size: 9px; color: var(--text-dim);
-      letter-spacing: 0.06em; cursor: pointer;
+      font-size: 11px; color: var(--text-muted);
+      letter-spacing: 0.04em; cursor: pointer;
       background: none; border: none;
       font-family: var(--mono); padding: 0;
       margin-top: 6px; display: none;
@@ -202,8 +257,8 @@
     /* ─── HTML DROP ZONE ────────────────────────────────── */
     .section-label-2 {
       width: 100%; max-width: 380px;
-      font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
-      color: var(--text-dim); margin-bottom: 10px;
+      font-size: 11px; letter-spacing: 0.10em; text-transform: uppercase;
+      color: var(--text-muted); margin-bottom: 10px;
       display: flex; align-items: center; gap: 10px;
     }
     .section-label-2::after {
@@ -234,14 +289,14 @@
       font-family: var(--display); font-size: 14px; font-weight: 600;
       color: var(--text); margin-bottom: 4px;
     }
-    .drop-sub { font-size: 10px; color: var(--text-muted); letter-spacing: 0.05em; }
+    .drop-sub { font-size: 12px; color: var(--text-muted); letter-spacing: 0.03em; }
     .drop-sub span { color: var(--accent); font-weight: 500; }
 
     .hint {
-      font-size: 10px; color: var(--text-dim);
-      letter-spacing: 0.06em; text-align: center; line-height: 1.7;
+      font-size: 12px; color: var(--text-muted);
+      letter-spacing: 0.02em; text-align: center; line-height: 1.7;
     }
-    .hint strong { color: var(--text-muted); }
+    .hint strong { color: var(--text); }
 
     /* ─── VIEWER SCREEN ─────────────────────────────────── */
     #viewer-screen {
@@ -261,11 +316,11 @@
       position: fixed;
       bottom: calc(var(--safe-bottom) + 16px);
       z-index: 200;
-      background: rgba(10, 10, 15, 0.88);
+      background: var(--pill-bg);
       backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
       border: 1px solid var(--border-bright); border-radius: 50px;
       padding: 8px 14px;
-      font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em;
+      font-family: var(--mono); font-size: 11px; letter-spacing: 0.06em;
       color: var(--text-muted); cursor: pointer;
       display: none; align-items: center; gap: 6px;
       opacity: 0;
@@ -309,8 +364,8 @@
     }
 
     .steps-title {
-      font-size: 9px; letter-spacing: 0.14em; text-transform: uppercase;
-      color: var(--text-dim); margin-bottom: 12px;
+      font-size: 11px; letter-spacing: 0.10em; text-transform: uppercase;
+      color: var(--text-muted); margin-bottom: 12px;
       display: flex; align-items: center; gap: 10px;
     }
     .steps-title::after {
@@ -346,8 +401,8 @@
       border: 1px solid var(--border-bright);
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
-      font-family: var(--display); font-size: 11px; font-weight: 700;
-      color: var(--text-dim);
+      font-family: var(--display); font-size: 12px; font-weight: 700;
+      color: var(--text-muted);
       position: relative; z-index: 1;
     }
 
@@ -377,7 +432,7 @@
     }
 
     .step-label {
-      font-family: var(--display); font-size: 12px; font-weight: 600;
+      font-family: var(--display); font-size: 14px; font-weight: 600;
       color: var(--text-muted); margin-bottom: 2px;
       line-height: 1.3;
     }
@@ -385,27 +440,76 @@
     .step.done   .step-label { color: var(--text-muted); text-decoration: line-through; text-decoration-color: var(--text-dim); }
 
     .step-detail {
-      font-size: 10px; color: var(--text-dim);
-      letter-spacing: 0.03em; line-height: 1.6;
+      font-size: 12px; color: var(--text-muted);
+      letter-spacing: 0.01em; line-height: 1.6;
     }
-    .step.active .step-detail { color: var(--text-muted); }
+    .step.active .step-detail { color: var(--text); }
 
     .step-detail .chip {
       display: inline-flex; align-items: center; gap: 4px;
       background: var(--surface); border: 1px solid var(--border-bright);
       border-radius: 6px; padding: 1px 6px;
-      font-size: 9.5px; color: var(--text-muted);
+      font-size: 11px; color: var(--text-muted);
       vertical-align: middle; position: relative; top: -1px;
     }
     .step-detail .chip svg { width: 9px; height: 9px; flex-shrink: 0; }
 
     .step-detail .hl { color: var(--gold); font-weight: 500; }
 
+    /* ─── THEME TOGGLE ─────────────────────────────────────── */
+    #theme-toggle {
+      position: fixed;
+      top: calc(var(--safe-top) + 14px);
+      right: 16px;
+      z-index: 250;
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: var(--surface);
+      border: 1px solid var(--border-bright);
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: color 0.2s, border-color 0.2s, background 0.2s, box-shadow 0.2s;
+      flex-shrink: 0;
+    }
+    #theme-toggle:hover {
+      color: var(--text);
+      border-color: var(--accent);
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+    #theme-toggle svg { width: 15px; height: 15px; pointer-events: none; }
+
+    /* Dark mode (default): show sun to switch to light */
+    #theme-toggle .icon-moon { display: none; }
+    #theme-toggle .icon-sun  { display: block; }
+
+    /* Light mode: show moon to switch to dark */
+    [data-theme="light"] #theme-toggle .icon-moon { display: block; }
+    [data-theme="light"] #theme-toggle .icon-sun  { display: none; }
+    @media (prefers-color-scheme: light) {
+      :root:not([data-theme="dark"]) #theme-toggle .icon-moon { display: block; }
+      :root:not([data-theme="dark"]) #theme-toggle .icon-sun  { display: none; }
+    }
+
   </style>
+  <script>/* early theme */(function(){var t=localStorage.getItem('sv-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}());</script>
 </head>
 <body>
 
 <div id="progress"></div>
+
+<!-- ── Theme toggle ────────────────────────────────────── -->
+<button id="theme-toggle" aria-label="Toggle light/dark mode">
+  <!-- Sun icon: shown in dark mode -->
+  <svg class="icon-sun" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="8" cy="8" r="3" stroke="currentColor" stroke-width="1.4"/>
+    <path d="M8 1.5v2M8 12.5v2M1.5 8h2M12.5 8h2M3.4 3.4l1.4 1.4M11.2 11.2l1.4 1.4M3.4 12.6l1.4-1.4M11.2 4.8l1.4-1.4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+  </svg>
+  <!-- Moon icon: shown in light mode -->
+  <svg class="icon-moon" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M13.5 10A6 6 0 0 1 6 2.5a.4.4 0 0 0-.5-.5A6.5 6.5 0 1 0 14 11a.4.4 0 0 0-.5-.5-.4.4 0 0 0 0 .5Z" fill="currentColor"/>
+  </svg>
+</button>
 
 <!-- ── Upload screen ───────────────────────────────────── -->
 <div id="upload-screen">
@@ -419,7 +523,7 @@
     </svg>
   </div>
   <div class="wordmark">SiteVault</div>
-  <div class="tagline">cache &amp; launch any html site</div>
+  <div class="tagline">cache &amp; launch any html site to your home screen</div>
 
   <!-- ── Setup steps (browser mode only) ──────────────── -->
   <div id="setup-steps">
@@ -968,6 +1072,39 @@
     dropZone.classList.remove('dragover');
     handleFile(e.dataTransfer.files[0]);
   });
+
+  /* ════════════════════════════════════════════════════════════
+     Theme toggle
+  ════════════════════════════════════════════════════════════ */
+  (function () {
+    const root      = document.documentElement;
+    const toggleBtn = document.getElementById('theme-toggle');
+    const themeMeta = document.querySelector('meta[name="theme-color"]');
+
+    function isLight() {
+      const t = root.dataset.theme;
+      if (t === 'light') return true;
+      if (t === 'dark')  return false;
+      return window.matchMedia('(prefers-color-scheme: light)').matches;
+    }
+
+    function syncMeta() {
+      if (themeMeta) themeMeta.content = isLight() ? '#f2f2f7' : '#0a0a0f';
+    }
+
+    syncMeta();
+
+    toggleBtn.addEventListener('click', () => {
+      const next = isLight() ? 'dark' : 'light';
+      root.setAttribute('data-theme', next);
+      localStorage.setItem('sv-theme', next);
+      syncMeta();
+    });
+
+    window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
+      if (!root.dataset.theme) syncMeta();
+    });
+  }());
 
   /* ── Register SW, then boot ──────────────────────────────── */
   async function init() {
