@@ -113,25 +113,22 @@
     /* ─── UPLOAD SCREEN ─────────────────────────────────── */
     #upload-screen {
       position: fixed; inset: 0;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: flex-start;
-      padding: calc(var(--safe-top) + 32px) 24px calc(var(--safe-bottom) + 32px);
+      overflow-y: auto; -webkit-overflow-scrolling: touch;
       background: var(--bg);
       z-index: 100;
-      overflow-y: auto; -webkit-overflow-scrolling: touch;
       opacity: 0; pointer-events: none;
       transition: opacity 0.4s ease, transform 0.4s ease;
-      gap: 0;
-    }
-    /* Centre content vertically when it fits, scroll when it doesn't */
-    #upload-screen::before {
-      content: ''; flex: 1;
-    }
-    #upload-screen > *:last-child {
-      margin-bottom: 0;
     }
     #upload-screen.visible { opacity: 1; pointer-events: all; }
     #upload-screen.hidden  { opacity: 0; pointer-events: none; transform: scale(0.96); }
+
+    #upload-inner {
+      min-height: 100%;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
+      padding: calc(var(--safe-top) + 32px) 24px calc(var(--safe-bottom) + 32px);
+      gap: 0;
+    }
 
     .logo-mark {
       width: 64px; height: 64px; border-radius: 16px;
@@ -359,10 +356,10 @@
     }
 
     /* ─── NOISE TEXTURE ─────────────────────────────────── */
-    #upload-screen::after {
-      content: ''; position: fixed; inset: 0;
+    #upload-noise {
+      position: fixed; inset: 0;
       background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
-      opacity: 0.025; pointer-events: none; z-index: -1;
+      opacity: 0.025; pointer-events: none; z-index: 0;
     }
 
     /* ─── SETUP STEPS (browser mode only) ──────────────── */
@@ -541,6 +538,8 @@
 
 <!-- ── Upload screen ───────────────────────────────────── -->
 <div id="upload-screen">
+<div id="upload-noise"></div>
+<div id="upload-inner">
 
   <div class="logo-mark">
     <svg viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -619,7 +618,8 @@
     Inline CSS &amp; JS will run. Externally<br/>linked files may not load offline.
   </p>
 
-</div>
+</div><!-- /#upload-inner -->
+</div><!-- /#upload-screen -->
 
 <!-- ── Viewer screen ───────────────────────────────────── -->
 <div id="viewer-screen">
