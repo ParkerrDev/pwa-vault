@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>SiteVault</title>
+  <title>Pocklet</title>
 
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="SiteVault" />
+  <meta name="apple-mobile-web-app-title" content="Pocklet" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="theme-color" content="#0a0a0f" />
 
@@ -114,13 +114,21 @@
     #upload-screen {
       position: fixed; inset: 0;
       display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      padding: calc(var(--safe-top) + 20px) 24px calc(var(--safe-bottom) + 20px);
+      align-items: center; justify-content: flex-start;
+      padding: calc(var(--safe-top) + 32px) 24px calc(var(--safe-bottom) + 32px);
       background: var(--bg);
       z-index: 100;
+      overflow-y: auto; -webkit-overflow-scrolling: touch;
       opacity: 0; pointer-events: none;
       transition: opacity 0.4s ease, transform 0.4s ease;
       gap: 0;
+    }
+    /* Centre content vertically when it fits, scroll when it doesn't */
+    #upload-screen::before {
+      content: ''; flex: 1;
+    }
+    #upload-screen > *:last-child {
+      margin-bottom: 0;
     }
     #upload-screen.visible { opacity: 1; pointer-events: all; }
     #upload-screen.hidden  { opacity: 0; pointer-events: none; transform: scale(0.96); }
@@ -210,7 +218,7 @@
     }
     .icon-tap-target img.has-image { display: block; }
 
-    /* Default SiteVault placeholder shown when no custom icon */
+    /* Default Pocklet placeholder shown when no custom icon */
     .icon-default-svg {
       width: 32px; height: 32px;
       opacity: 0.3;
@@ -491,6 +499,26 @@
       :root:not([data-theme="dark"]) #theme-toggle .icon-sun  { display: none; }
     }
 
+    /* ─── DESKTOP SCALE-UP (+25%) ──────────────────────────── */
+    @media (min-width: 768px) {
+      .wordmark        { font-size: 33px; }
+      .tagline         { font-size: 16px; }
+      .section-label,
+      .section-label-2,
+      .steps-title     { font-size: 14px; }
+      .icon-text-title { font-size: 18px; }
+      .icon-text-sub,
+      .icon-remove-link,
+      .drop-sub,
+      .hint,
+      .step-detail,
+      .step-detail .chip { font-size: 15px; }
+      .drop-title,
+      .step-label      { font-size: 18px; }
+      .step-num        { font-size: 15px; width: 36px; height: 36px; }
+      .pill-btn        { font-size: 14px; }
+    }
+
   </style>
   <script>/* early theme */(function(){var t=localStorage.getItem('sv-theme');if(t==='light'||t==='dark')document.documentElement.setAttribute('data-theme',t);}());</script>
 </head>
@@ -522,91 +550,13 @@
       <rect x="20" y="20" width="12" height="12" rx="2" fill="#7c6af7" opacity="0.7"/>
     </svg>
   </div>
-  <div class="wordmark">SiteVault</div>
-  <div class="tagline">cache &amp; launch any html site to your home screen</div>
+  <div class="wordmark">Pocklet</div>
+  <div class="tagline">save html sites to your home screen</div>
 
   <!-- ── Setup steps (browser mode only) ──────────────── -->
   <div id="setup-steps">
     <div class="steps-title">How to set up</div>
-    <div class="steps-list">
-
-      <!-- Step 1 -->
-      <div class="step active" id="step-1">
-        <div class="step-left">
-          <div class="step-num">
-            <span class="step-num-text">1</span>
-            <svg class="step-check" width="12" height="12" viewBox="0 0 12 12" fill="none">
-              <path d="M2 6.5L4.5 9L10 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-        </div>
-        <div class="step-body">
-          <div class="step-label">Set your app icon <span style="font-size:10px;font-family:var(--mono);font-weight:400;color:var(--text-dim);">(optional)</span></div>
-          <div class="step-detail">Upload a custom image below so Safari uses it for your home screen shortcut.</div>
-        </div>
-      </div>
-
-      <!-- Step 2 -->
-      <div class="step" id="step-2">
-        <div class="step-left">
-          <div class="step-num">
-            <span class="step-num-text">2</span>
-            <svg class="step-check" width="12" height="12" viewBox="0 0 12 12" fill="none">
-              <path d="M2 6.5L4.5 9L10 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-        </div>
-        <div class="step-body">
-          <div class="step-label">Tap Share in Safari</div>
-          <div class="step-detail">
-            Press the
-            <span class="chip">
-              <svg viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M6 1v7M3.5 3.5L6 1l2.5 2.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M2 7v3.5h8V7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              Share
-            </span>
-            button in the Safari toolbar.
-          </div>
-        </div>
-      </div>
-
-      <!-- Step 3 -->
-      <div class="step" id="step-3">
-        <div class="step-left">
-          <div class="step-num">
-            <span class="step-num-text">3</span>
-            <svg class="step-check" width="12" height="12" viewBox="0 0 12 12" fill="none">
-              <path d="M2 6.5L4.5 9L10 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-        </div>
-        <div class="step-body">
-          <div class="step-label">Add to Home Screen</div>
-          <div class="step-detail">
-            Scroll down the Share sheet and tap <span class="hl">Add to Home Screen</span>, then tap <span class="hl">Add</span>.
-          </div>
-        </div>
-      </div>
-
-      <!-- Step 4 -->
-      <div class="step" id="step-4">
-        <div class="step-left">
-          <div class="step-num">
-            <span class="step-num-text">4</span>
-            <svg class="step-check" width="12" height="12" viewBox="0 0 12 12" fill="none">
-              <path d="M2 6.5L4.5 9L10 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-          </div>
-        </div>
-        <div class="step-body">
-          <div class="step-label">Open the app &amp; upload your site</div>
-          <div class="step-detail">Launch SiteVault from your home screen. The file uploader will appear — drop your <span class="hl">.html</span> file in.</div>
-        </div>
-      </div>
-
-    </div>
+    <div class="steps-list" id="steps-list"></div>
   </div>
 
   <!-- ── Icon uploader ──────────────────────────────────── -->
@@ -623,7 +573,7 @@
     />
 
     <div class="icon-tap-target" id="icon-tap-target">
-      <!-- Default SiteVault placeholder -->
+      <!-- Default Pocklet placeholder -->
       <svg class="icon-default-svg" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
         <rect x="4" y="4" width="12" height="12" rx="2" fill="#7c6af7" opacity="0.9"/>
         <rect x="20" y="4" width="12" height="12" rx="2" fill="#7c6af7" opacity="0.4"/>
@@ -716,7 +666,7 @@
 
 <script>
   /* ═══════════════════════════════════════════════════════════
-     SiteVault — full storage & icon logic
+     Pocklet — full storage & icon logic
 
      Storage keys in IndexedDB:
        html       → the uploaded site HTML string
@@ -828,7 +778,7 @@
         headers: { 'Content-Type': 'text/html; charset=utf-8' }
       }));
       return true;
-    } catch (err) { console.warn('[SiteVault] Cache write failed:', err); return false; }
+    } catch (err) { console.warn('[Pocklet] Cache write failed:', err); return false; }
   }
   async function cacheRead() {
     try {
@@ -1042,7 +992,7 @@
     try {
       const fromIDB = await idbGet(IDB_KEY_HTML);
       if (fromIDB) { await cacheWrite(fromIDB); showViewer(isFinalized); return; }
-    } catch (err) { console.warn('[SiteVault] IDB read failed:', err); }
+    } catch (err) { console.warn('[Pocklet] IDB read failed:', err); }
 
     // 3️⃣ Nothing — show upload screen
     uploadScreen.classList.add('visible');
@@ -1106,6 +1056,122 @@
     });
   }());
 
+  /* ════════════════════════════════════════════════════════════
+     Platform detection & dynamic setup steps
+  ════════════════════════════════════════════════════════════ */
+  function detectPlatform() {
+    const ua = navigator.userAgent;
+    const isIOS = /iPad|iPhone|iPod/.test(ua) ||
+                  (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    if (isIOS) return 'ios';
+    if (/SamsungBrowser/.test(ua)) return 'samsung';
+    if (/Android/.test(ua) && /Firefox\//.test(ua)) return 'android-firefox';
+    if (/Android/.test(ua)) return 'android-chrome';
+    return 'unknown';
+  }
+
+  function getStepsForPlatform(platform) {
+    const SHARE_ICON = `<svg style="width:10px;height:10px;vertical-align:middle" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 1v7M3.5 3.5L6 1l2.5 2.5" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 7v3.5h8V7" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    const uploadStep = {
+      label: 'Upload your site',
+      detail: 'Drop your <span class="hl">.html</span> file into the uploader below. You can do this now or after adding to your home screen.'
+    };
+
+    if (platform === 'ios') return [
+      {
+        label: 'Set your app icon <span style="font-size:10px;font-family:var(--mono);font-weight:400;color:var(--text-dim);">(optional)</span>',
+        detail: 'Upload a custom image below so Safari uses it for your home screen shortcut.'
+      },
+      {
+        label: 'Tap Share in Safari',
+        detail: `Press the <span class="chip">${SHARE_ICON} Share</span> button in the Safari toolbar.`
+      },
+      {
+        label: 'Add to Home Screen',
+        detail: 'Scroll down the Share sheet, tap <span class="hl">Add to Home Screen</span>, then tap <span class="hl">Add</span>.'
+      },
+      uploadStep
+    ];
+
+    if (platform === 'android-chrome') return [
+      {
+        label: 'Tap the menu in Chrome',
+        detail: 'Tap the <span class="chip">⋮</span> three-dot menu at the top right.'
+      },
+      {
+        label: 'Add to Home screen',
+        detail: 'Tap <span class="hl">Add to Home screen</span>.'
+      },
+      {
+        label: 'Name &amp; add',
+        detail: 'Edit the shortcut name if you like, then tap <span class="hl">Add</span>.'
+      },
+      uploadStep
+    ];
+
+    if (platform === 'android-firefox') return [
+      {
+        label: 'Tap the menu in Firefox',
+        detail: 'Tap the <span class="chip">⋮</span> three-dot menu.'
+      },
+      {
+        label: 'Add to Home screen',
+        detail: 'Tap <span class="hl">Add to Home screen</span>.'
+      },
+      {
+        label: 'Name &amp; add',
+        detail: 'Enter a name for the shortcut, then tap <span class="hl">Add</span>.'
+      },
+      uploadStep
+    ];
+
+    if (platform === 'samsung') return [
+      {
+        label: 'Tap the menu in Samsung Internet',
+        detail: 'Tap the <span class="chip">☰</span> three-line menu at the bottom right.'
+      },
+      {
+        label: 'Add page to Home screen',
+        detail: 'Tap <span class="hl">Add page to</span>, then select <span class="hl">Home screen</span>.'
+      },
+      {
+        label: 'Name &amp; add',
+        detail: 'Edit the shortcut name if you like, then tap <span class="hl">Add</span>.'
+      },
+      uploadStep
+    ];
+
+    // Unknown / desktop
+    return [
+      {
+        label: 'Open on your phone',
+        detail: 'Visit this page on iOS Safari or Android browser of choice.'
+      },
+      {
+        label: 'Add to Home Screen',
+        detail: 'Use your browser\'s menu to add this page to your home screen.'
+      },
+      uploadStep
+    ];
+  }
+
+  function renderSteps(steps) {
+    const CHECKMARK = `<svg class="step-check" width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 6.5L4.5 9L10 3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+    document.getElementById('steps-list').innerHTML = steps.map((s, i) => `
+      <div class="step${i === 0 ? ' active' : ''}" id="step-${i + 1}">
+        <div class="step-left">
+          <div class="step-num">
+            <span class="step-num-text">${i + 1}</span>
+            ${CHECKMARK}
+          </div>
+        </div>
+        <div class="step-body">
+          <div class="step-label">${s.label}</div>
+          <div class="step-detail">${s.detail}</div>
+        </div>
+      </div>`).join('');
+  }
+
   /* ── Register SW, then boot ──────────────────────────────── */
   async function init() {
     if ('serviceWorker' in navigator) {
@@ -1119,24 +1185,43 @@
             });
           });
         }
-      } catch (err) { console.warn('[SiteVault] SW registration failed:', err); }
+      } catch (err) { console.warn('[Pocklet] SW registration failed:', err); }
     }
     // Detect whether running as installed PWA (standalone) or regular browser.
     // window.navigator.standalone is iOS Safari-specific; matchMedia covers other browsers.
     const isStandalone = window.navigator.standalone === true ||
                          window.matchMedia('(display-mode: standalone)').matches;
 
-    // Standalone (home screen app): show HTML uploader only — no icon picker needed here,
-    //   the page is already saved as a shortcut.
-    // Browser: show icon picker only — user sets the icon before adding to home screen.
+    const platform = detectPlatform();
+    const isIOS = platform === 'ios';
+    const isMobile = platform !== 'unknown';
+
+    // Render platform-specific setup steps
+    renderSteps(getStepsForPlatform(platform));
+
+    // Standalone (home screen app): hide setup guide, show everything else.
+    // Mobile browser: show setup steps + uploaders.
+    // Desktop: show setup steps only — uploaders not relevant here.
     if (isStandalone) {
       document.getElementById('icon-section-label').style.display = 'none';
       document.getElementById('icon-uploader').style.display = 'none';
       document.getElementById('setup-steps').style.display = 'none';
-    } else {
+    } else if (!isMobile) {
+      // Desktop — hide both uploaders
+      document.getElementById('icon-section-label').style.display = 'none';
+      document.getElementById('icon-uploader').style.display = 'none';
       document.getElementById('site-section-label').style.display = 'none';
       document.getElementById('drop-zone').style.display = 'none';
       document.querySelector('.hint').style.display = 'none';
+    } else {
+      // Mobile browser — hide site uploader, show setup steps + icon picker (iOS only)
+      document.getElementById('site-section-label').style.display = 'none';
+      document.getElementById('drop-zone').style.display = 'none';
+      document.querySelector('.hint').style.display = 'none';
+      if (!isIOS) {
+        document.getElementById('icon-section-label').style.display = 'none';
+        document.getElementById('icon-uploader').style.display = 'none';
+      }
     }
 
     await boot();

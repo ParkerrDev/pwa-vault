@@ -1,7 +1,7 @@
 {
-  "name": "SiteVault",
-  "short_name": "SiteVault",
-  "description": "Cache and launch any self-contained HTML site from your home screen.",
+  "name": "Pocklet",
+  "short_name": "Pocklet",
+  "description": "Save and launch any self-contained HTML site from your iOS home screen.",
   "start_url": "/",
   "display": "standalone",
   "orientation": "any",

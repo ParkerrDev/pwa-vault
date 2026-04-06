@@ -1,8 +1,9 @@
 /* ─────────────────────────────────────────────────────────
-   SiteVault Service Worker
+   Pocklet Service Worker
    Storage strategy:
      • sitevault-shell-v2  → app shell (index.html, manifest, icons)
      • sitevault-user-v2   → user's uploaded HTML, served at /_sv_site_
+     (Cache key names kept for backward compatibility)
    ───────────────────────────────────────────────────────── */
 
 const SHELL_CACHE = 'sitevault-shell-v2';
