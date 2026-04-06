@@ -1052,6 +1052,7 @@
     });
 
     window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => {
+      // Always sync meta; only update theme if no manual override is set
       if (!root.dataset.theme) syncMeta();
     });
   }());
@@ -1206,6 +1207,13 @@
       document.getElementById('icon-section-label').style.display = 'none';
       document.getElementById('icon-uploader').style.display = 'none';
       document.getElementById('setup-steps').style.display = 'none';
+      // In standalone PWA: follow system theme automatically, hide manual toggle
+      document.getElementById('theme-toggle').style.display = 'none';
+      document.documentElement.removeAttribute('data-theme');
+      localStorage.removeItem('sv-theme');
+      // Icon cannot be changed after install — remove icon btn from viewer controls
+      allViewerBtns.splice(allViewerBtns.indexOf(iconBtn), 1);
+      iconBtn.style.display = 'none';
     } else if (!isMobile) {
       // Desktop — hide both uploaders
       document.getElementById('icon-section-label').style.display = 'none';
